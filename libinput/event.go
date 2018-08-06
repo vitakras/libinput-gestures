@@ -1,7 +1,7 @@
 package libinput
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -53,54 +53,54 @@ func ParseDebugLine(line string) (*DebugEvent, error) {
 }
 
 func parseFingerDirection(line string) (*FingerDirection, error) {
-	exp := regexp.MustCompile("(\\-?\\d+\\.\\d+)/(\\-?\\d+\\.\\d+)([\\s\\S]*)") //[\\s\\S]*\\@\\s+(\\-?[0-9]+\\.[0-9]+)+
+	exp := regexp.MustCompile("(\\-?\\d+\\.\\d+)/(\\-?\\d+\\.\\d+)([\\s\\S]*)")
+
 	result := exp.FindStringSubmatch(line)
-
-	if result != nil {
-		x, err := strconv.ParseFloat(result[1], 32)
-		if err != nil {
-			return nil, err
-		}
-
-		y, err := strconv.ParseFloat(result[2], 32)
-		if err != nil {
-			return nil, err
-		}
-
-		fingerDirection := &FingerDirection{
-			X: float32(x),
-			Y: float32(y),
-		}
-
-		if len(result) == 4 {
-			zoom, err := parseZoom(result[3])
-			if err != nil {
-				return nil, err
-			}
-			fingerDirection.Zoom = float32(zoom)
-		}
-
-		return fingerDirection, nil
+	if result == nil {
+		return nil, fmt.Errorf("parseFingerDirection: Failed to find Direction in string %s", line)
 	}
 
-	return nil, errors.New("hello")
+	x, err := strconv.ParseFloat(result[1], 32)
+	if err != nil {
+		return nil, err
+	}
+
+	y, err := strconv.ParseFloat(result[2], 32)
+	if err != nil {
+		return nil, err
+	}
+
+	fingerDirection := &FingerDirection{
+		X: float32(x),
+		Y: float32(y),
+	}
+
+	if len(result) == 4 {
+		zoom, err := parseZoom(result[3])
+		if err != nil {
+			return nil, err
+		}
+
+		fingerDirection.Zoom = zoom
+	}
+
+	return fingerDirection, nil
 }
 
 func parseZoom(line string) (float32, error) {
-	zoom := float32(0)
 	exp := regexp.MustCompile("\\@\\s+(\\-?\\d+\\.\\d+)")
+
 	result := exp.FindStringSubmatch(line)
-
-	if result != nil {
-		zoom, err := strconv.ParseFloat(result[1], 32)
-		if err != nil {
-			return 0, err
-		}
-
-		return float32(zoom), nil
+	if result == nil {
+		return 0, nil
 	}
 
-	return zoom, nil
+	zoom, err := strconv.ParseFloat(result[1], 32)
+	if err != nil {
+		return 0, err
+	}
+
+	return float32(zoom), nil
 }
 
 func getTime(rawTime string) (float32, error) {
