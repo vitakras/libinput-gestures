@@ -59,3 +59,23 @@ func TestVersionError(t *testing.T) {
 		t.Errorf("Unexpected error %s", err)
 	}
 }
+
+func TestListDevices(t *testing.T) {
+	libinputRunResult = `Device:           AT Translated Set 2 keyboard
+Kernel:           /dev/input/event4
+Nat.scrolling:    disabled
+
+	`
+	mockedExitStatus = 0
+	SetExecCommand(fakeExecCommand)
+	defer ResetExecCommand()
+
+	devices, err := ListDevices()
+	if err != nil {
+		t.Errorf("Expected nil error, got %#v", err)
+	}
+
+	if len(devices) != 1 {
+		t.Errorf("Expected device count to be 1 but it is %d", len(devices))
+	}
+}
