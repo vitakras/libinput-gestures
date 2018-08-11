@@ -55,6 +55,13 @@ func ListDevices() ([]*Device, error) {
 	return devices, nil
 }
 
+// DebugEvents returns a channel with DebugEvent struct while the channel is open
+func DebugEvents(devices ...Device) (chan DebugEvent, error) {
+	debugEventChan := make(chan DebugEvent)
+
+	return debugEventChan, nil
+}
+
 func libinput(args ...string) *exec.Cmd {
 	return execCommand("libinput", args...)
 }
