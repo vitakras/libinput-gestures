@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"strings"
 )
 
 type execCommandType func(string, ...string) *exec.Cmd
@@ -55,11 +56,54 @@ func ListDevices() ([]*Device, error) {
 	return devices, nil
 }
 
-// DebugEvents returns a channel with DebugEvent struct while the channel is open
-func DebugEvents(devices ...Device) (chan DebugEvent, error) {
-	debugEventChan := make(chan DebugEvent)
+// DebugEventStream interface for controlling the output from debug-events command
+type DebugEventStream struct {
+	cmd     *exec.Cmd
+	scanner *bufio.Scanner
+}
 
-	return debugEventChan, nil
+// NewDebugEventStream creates a new DebugEventStream
+func NewDebugEventStream() *DebugEventStream {
+	cmd := libinput("debug-events")
+
+	reader, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil
+	}
+
+	scanner := bufio.NewScanner(reader)
+	return &DebugEventStream{
+		cmd:     cmd,
+		scanner: scanner,
+	}
+}
+
+// Start stars the DebugEventSteam
+func (stream *DebugEventStream) Start() error {
+	return stream.cmd.Start()
+}
+
+// Stop stops the DebugEventStream
+func (stream *DebugEventStream) Stop() error {
+	return stream.cmd.Process.Kill()
+}
+
+// Read reads the DebugEventSteam and returns
+func (stream *DebugEventStream) Read() *DebugEvent {
+	scanner := stream.scanner
+	if scanner.Scan() {
+		text := scanner.Text()
+		if len(text) != 0 {
+			text = strings.Trim(text, " ")
+			event, err := ParseDebugLine(text)
+			if err != nil {
+				return event
+			}
+			return event
+		}
+	}
+
+	return nil
 }
 
 func libinput(args ...string) *exec.Cmd {
