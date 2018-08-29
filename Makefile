@@ -16,3 +16,6 @@ test:
 	$(GOTEST) -v ./...
 build: clean
 	$(GOBUILD) -o "$(BUILD_FOLDER)/$(BINARY_NAME)" -v cmd/*.go
+setup:
+	$(GOGET) github.com/onsi/ginkgo/ginkgo
+	$(GOGET) github.com/onsi/gomega/...
