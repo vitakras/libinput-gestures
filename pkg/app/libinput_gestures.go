@@ -3,6 +3,7 @@ package app
 import "github.com/vitakras/libinput-gestures/pkg/libinput"
 
 // DebugStreamer used to read in the DebugEvents
+//go:generate counterfeiter . DebugStreamer
 type DebugStreamer interface {
 	Start() error
 	Read() *libinput.DebugEvent
@@ -10,6 +11,7 @@ type DebugStreamer interface {
 }
 
 // Processor used to Process DebugEvents
+//go:generate counterfeiter . Processor
 type Processor interface {
 	Process(debugEvent *libinput.DebugEvent) error
 }
@@ -18,6 +20,14 @@ type Processor interface {
 type LibinputGestures struct {
 	debugStreamer DebugStreamer
 	processor     Processor
+}
+
+// NewLibinputGestures returns a new LibinputGestures struct
+func NewLibinputGestures(processor Processor, debugStreamer DebugStreamer) *LibinputGestures {
+	return &LibinputGestures{
+		debugStreamer: debugStreamer,
+		processor:     processor,
+	}
 }
 
 // ProcessEvents reads and processes the DebugEvent structs
