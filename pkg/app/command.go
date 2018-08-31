@@ -1,4 +1,4 @@
-package main
+package app
 
 import "os/exec"
 
@@ -18,7 +18,7 @@ func ResetExecCommand() {
 
 // Command to Execute
 type Command struct {
-	Command string `json:"command"`
+	Command string `yaml:"command"`
 }
 
 // Execute the command in the Command struct
