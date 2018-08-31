@@ -17,7 +17,9 @@ func main() {
 	for {
 		event := stream.Read()
 		if event != nil {
-			fmt.Printf("Event is %s %f\n ", event.Action, event.Time)
+			if event.Direction != nil {
+				fmt.Printf("Event is %s %f,%f zoom %f\n ", event.Action, event.Direction.X, event.Direction.Y, event.Direction.Zoom)
+			}
 		}
 	}
 }
