@@ -1,8 +1,9 @@
-package main
+package app_test
 
 import (
 	"testing"
 
+	. "github.com/vitakras/libinput-gestures/pkg/app"
 	"github.com/vitakras/libinput-gestures/pkg/libinput"
 )
 

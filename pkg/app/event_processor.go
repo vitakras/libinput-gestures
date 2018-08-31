@@ -1,4 +1,4 @@
-package main
+package app
 
 import "github.com/vitakras/libinput-gestures/pkg/libinput"
 
@@ -14,4 +14,19 @@ var SupportedActionsMap = map[string]bool{
 func IsValidDebugEvent(debugEvent *libinput.DebugEvent) bool {
 	_, supported := SupportedActionsMap[debugEvent.Action]
 	return supported
+}
+
+// Commander used to retrieve gesture command
+type Commander interface {
+	GetCommand(gesture Gesture) *Command
+}
+
+// EventProcessor struct for proccessing DebugEvents
+type EventProcessor struct {
+	Commander Commander
+}
+
+// Process processes the debug event
+func (event *EventProcessor) Process(debugEvent *libinput.DebugEvent) error {
+	return nil
 }
